@@ -3,6 +3,7 @@ MAINTAINER marco [dot] turi [at] hotmail [dot] it
 
 ENV DEBIAN_FRONTEND=noninteractive \
     ANDROID_HOME=/opt/android-sdk-linux \
+    ASDK_TOOLS_VERSIONID=4333796 \
     NPM_VERSION=6.4.1 \
     IONIC_VERSION=3.20.0 \
     CORDOVA_VERSION=8.0.0 \
@@ -48,7 +49,7 @@ RUN apt-get update &&  \
 
 # Install Android Tools
     mkdir  /opt/android-sdk-linux && cd /opt/android-sdk-linux && \
-    wget --output-document=android-tools-sdk.zip --quiet https://dl.google.com/android/repository/tools_r25.2.3-linux.zip && \
+    wget --output-document=android-tools-sdk.zip --quiet https://dl.google.com/android/repository/sdk-tools-linux-$ASDK_TOOLS_VERSIONID.zip && \
     unzip -q android-tools-sdk.zip && \
     rm -f android-tools-sdk.zip && \
 
