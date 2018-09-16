@@ -3,7 +3,9 @@ MAINTAINER marco [dot] turi [at] hotmail [dot] it
 
 ENV DEBIAN_FRONTEND=noninteractive \
     ANDROID_HOME=/opt/android-sdk-linux \
+    ANDROID_PLATFORM=26 \
     ASDK_TOOLS_VERSIONID=4333796 \
+    ASDK_BUILD_TOOLS_VERSION=26.0.3 \
     NPM_VERSION=6.4.1 \
     IONIC_VERSION=3.20.0 \
     CORDOVA_VERSION=8.0.0 \
@@ -64,7 +66,7 @@ RUN apt-get update &&  \
 ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:/opt/gradle/gradle-${GRADLE_VERSION}/bin
 
 # Install Android SDK
-RUN yes Y | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;25.0.2" "platforms;android-25" "platform-tools"
+RUN yes Y | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;$ASDK_BUILD_TOOLS_VERSION" "platforms;android-$ANDROID_PLATFORM" "platform-tools"
 RUN cordova telemetry off
 
 WORKDIR Sources
