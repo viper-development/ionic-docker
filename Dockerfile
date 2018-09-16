@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     IONIC_VERSION=3.20.0 \
     CORDOVA_VERSION=8.0.0 \
     YARN_VERSION=1.6.0 \
-    GRADLE_VERSION=4.4.1 \
+    GRADLE_VERSION=4.10.1 \
     # Fix for the issue with Selenium, as described here:
     # https://github.com/SeleniumHQ/docker-selenium/issues/87
     DBUS_SESSION_BUS_ADDRESS=/dev/null
