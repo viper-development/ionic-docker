@@ -1,5 +1,5 @@
-FROM ubuntu:xenial-20180808
-MAINTAINER marco [dot] turi [at] hotmail [dot] it
+FROM selenium/standalone-chrome
+MAINTAINER jayvdb [at] gmail [dot] com
 
 ENV DEBIAN_FRONTEND=noninteractive \
     ANDROID_HOME=/opt/android-sdk-linux \
