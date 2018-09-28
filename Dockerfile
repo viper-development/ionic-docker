@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM ubuntu:xenial-20180808
 MAINTAINER marco [dot] turi [at] hotmail [dot] it
 
 ENV DEBIAN_FRONTEND=noninteractive \
