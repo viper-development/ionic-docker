@@ -3,6 +3,7 @@ MAINTAINER marco [dot] turi [at] hotmail [dot] it
 
 ENV DEBIAN_FRONTEND=noninteractive \
     ANDROID_HOME=/opt/android-sdk-linux \
+    ANDROID_SDK_REV=4333796 \
     NPM_VERSION=6.4.1 \
     IONIC_VERSION=3.20.0 \
     CORDOVA_VERSION=8.0.0 \
@@ -49,7 +50,7 @@ RUN apt-get update &&  \
 
 # Install Android Tools
     mkdir  /opt/android-sdk-linux && cd /opt/android-sdk-linux && \
-    wget --output-document=android-tools-sdk.zip --quiet https://dl.google.com/android/repository/tools_r25.2.3-linux.zip && \
+    wget --output-document=android-tools-sdk.zip --quiet https://dl.google.com/android/repository/sdk-tools-linux-"$ANDROID_SDK_REV".zip && \
     unzip -q android-tools-sdk.zip && \
     rm -f android-tools-sdk.zip && \
 
@@ -64,7 +65,7 @@ RUN apt-get update &&  \
 ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:/opt/gradle/gradle-${GRADLE_VERSION}/bin
 
 # Install Android SDK
-RUN yes Y | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;25.0.2" "platforms;android-25" "platform-tools"
+RUN yes Y | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses
 RUN cordova telemetry off
 
 WORKDIR Sources
