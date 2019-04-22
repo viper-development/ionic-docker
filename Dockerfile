@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     ANDROID_HOME=/opt/android-sdk-linux \
     ANDROID_SDK_REV=4333796 \
     NPM_VERSION=6.4.1 \
+    PNPM_VERSION=3.2.0-0 \
     IONIC_VERSION=3.20.0 \
     CORDOVA_VERSION=8.0.0 \
     YARN_VERSION=1.6.0 \
@@ -20,7 +21,7 @@ RUN apt-get update &&  \
     apt-get update &&  \
     apt-get install -y nodejs && \
     npm install -g npm@"$NPM_VERSION" cordova@"$CORDOVA_VERSION" ionic@"$IONIC_VERSION" yarn@"$YARN_VERSION" && \
-    npm install -g pnpm \
+    npm install -g pnpm@"$PNPM_VERSION" \
     npm cache clear --force && \
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     dpkg --unpack google-chrome-stable_current_amd64.deb && \
