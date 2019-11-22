@@ -1,71 +1,83 @@
-FROM debian:jessie
-MAINTAINER marco [dot] turi [at] hotmail [dot] it
+FROM debian:buster
+MAINTAINER info@viperdev.io
 
 ENV DEBIAN_FRONTEND=noninteractive \
     ANDROID_HOME=/opt/android-sdk-linux \
     ANDROID_SDK_REV=4333796 \
-    NPM_VERSION=6.0.1 \
+    NPM_VERSION=6.12.0\
     IONIC_VERSION=5.4.0 \
     CORDOVA_VERSION=8.0.0 \
-    YARN_VERSION=1.6.0 \
-    GRADLE_VERSION=4.4.1 \
-    # Fix for the issue with Selenium, as described here:
-    # https://github.com/SeleniumHQ/docker-selenium/issues/87
+    YARN_VERSION=1.19.1 \
+    GRADLE_VERSION=6.0 \
     DBUS_SESSION_BUS_ADDRESS=/dev/null
 
 # Install basics
-RUN apt-get update &&  \
-    apt-get install -y git wget curl unzip build-essential && \
-    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-    apt-get update &&  \
-    apt-get install -y nodejs && \
-    npm install -g npm@"$NPM_VERSION" cordova@"$CORDOVA_VERSION" ionic@"$IONIC_VERSION" yarn@"$YARN_VERSION" && \
-    npm cache clear --force && \
-    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg --unpack google-chrome-stable_current_amd64.deb && \
-    apt-get install -f -y && \
-    apt-get clean && \
-    rm google-chrome-stable_current_amd64.deb && \
-    mkdir Sources && \
-    mkdir -p /root/.cache/yarn/ && \
+RUN set -x \
+    && apt-get update \
+    && apt-get install -y git wget curl unzip build-essential apt-transport-https ca-certificates dirmngr gnupg software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
 
-# Font libraries
-    apt-get -qqy install fonts-ipafont-gothic xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable libfreetype6 libfontconfig && \
+# Install Node
+RUN set -x \
+    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
-# install python-software-properties (so you can do add-apt-repository)
-    apt-get update && apt-get install -y -q python-software-properties software-properties-common  && \
-    add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" -y && \
-    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections && \
-    apt-get update && apt-get -y install oracle-java8-installer && \
+# Install Node libraries and tools
+RUN set -x \
+    && npm install -g npm@"$NPM_VERSION" cordova@"$CORDOVA_VERSION" ionic@"$IONIC_VERSION" yarn@"$YARN_VERSION" \
+    && mkdir Sources && mkdir -p /root/.cache/yarn/ \
+    && npm cache clear --force
 
-# System libs for android enviroment
-    echo ANDROID_HOME="${ANDROID_HOME}" >> /etc/environment && \
-    dpkg --add-architecture i386 && \
-    apt-get update && \
-    apt-get install -y --force-yes expect ant wget libc6-i386 lib32stdc++6 lib32gcc1 lib32ncurses5 lib32z1 qemu-kvm kmod && \
-    apt-get clean && \
-    apt-get autoclean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+# Install Google Chrome
+RUN set -x \
+    && wget -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && dpkg --unpack /tmp/google-chrome.deb \
+    && apt-get update \
+    && apt-get install -f -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /tmp/google-chrome.deb
 
-# Install Android Tools
-    mkdir  /opt/android-sdk-linux && cd /opt/android-sdk-linux && \
-    wget --output-document=android-tools-sdk.zip --quiet https://dl.google.com/android/repository/sdk-tools-linux-"$ANDROID_SDK_REV".zip && \
-    unzip -q android-tools-sdk.zip && \
-    rm -f android-tools-sdk.zip && \
+# Install fonts and libraries
+RUN set -x \
+    && apt-get update \
+    && apt-get -qqy install fonts-ipafont-gothic xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable libfreetype6 libfontconfig \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install OpenJDK
+RUN set -x \
+    && curl -sL https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - \
+    && add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ \
+    && apt-get update \
+    && apt-get install -y adoptopenjdk-8-hotspot \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Android SDK Tools
+RUN set -x \
+    && echo ANDROID_HOME="${ANDROID_HOME}" >> /etc/environment \
+    && dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y expect ant libc6-i386 lib32stdc++6 lib32gcc1 lib32ncurses6 lib32z1 qemu-kvm kmod \
+    && mkdir /opt/android-sdk-linux && cd /opt/android-sdk-linux \
+    && wget -O /tmp/android-tools-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-"$ANDROID_SDK_REV".zip \
+    && unzip -q /tmp/android-tools-sdk.zip \
+    && rm -f /tmp/android-tools-sdk.zip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Gradle
-    mkdir  /opt/gradle && cd /opt/gradle && \
-    wget --output-document=gradle.zip --quiet https://services.gradle.org/distributions/gradle-"$GRADLE_VERSION"-bin.zip && \
-    unzip -q gradle.zip && \
-    rm -f gradle.zip && \
-    chown -R root. /opt
+RUN set -x \
+    && mkdir  /opt/gradle && cd /opt/gradle \
+    && wget -O /tmp/gradle.zip https://services.gradle.org/distributions/gradle-"$GRADLE_VERSION"-bin.zip \
+    && unzip -q /tmp/gradle.zip \
+    && rm -f /tmp/gradle.zip
 
 # Setup environment
-ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:/opt/gradle/gradle-${GRADLE_VERSION}/bin
+ENV PATH ${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:/opt/gradle/gradle-${GRADLE_VERSION}/bin:${PATH}
 
-# Install Android SDK
-RUN yes Y | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses
-RUN cordova telemetry off
+# Install Android SDK packages and disable cordova telemetry
+RUN yes Y | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses \
+    && cordova telemetry off
 
 WORKDIR Sources
 EXPOSE 8100 35729
